@@ -14,7 +14,7 @@
   </p>
 </p>
 
-## About Midday
+## About Agios
 
 Agios-Updated is an all-in-one tool designed to help freelancers, contractors, consultants, and solo entrepreneurs manage their business operations more efficiently. It integrates various functions typically scattered across multiple platforms into a single, cohesive system.
 
