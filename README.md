@@ -1,7 +1,7 @@
-![hero](github.png)
+<!-- ![hero](github.png) -->
 
 <p align="center">
-	<h1 align="center"><b>Midday</b></h1>
+	<h1 align="center"><b>Agios Updated</b></h1>
 <p align="center">
     Run your business smarter
     <br />
@@ -16,7 +16,7 @@
 
 ## About Midday
 
-Midday is an all-in-one tool designed to help freelancers, contractors, consultants, and solo entrepreneurs manage their business operations more efficiently. It integrates various functions typically scattered across multiple platforms into a single, cohesive system.
+Agios-Updated is an all-in-one tool designed to help freelancers, contractors, consultants, and solo entrepreneurs manage their business operations more efficiently. It integrates various functions typically scattered across multiple platforms into a single, cohesive system.
 
 ## Features
 
