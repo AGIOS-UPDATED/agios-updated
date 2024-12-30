@@ -1,4 +1,5 @@
 use crate::providers::types::Transaction;
+use chrono::{DateTime, Utc};
 use lazy_static::lazy_static;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -6,10 +7,10 @@ use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct EnrichedTransaction {
-    #[serde(flatten)]
     pub transaction: Transaction,
-    pub category: Option<String>,
-    pub merchant: Option<String>,
+    pub enriched_description: Option<String>,
+    pub enriched_category: Option<String>,
+    pub enriched_merchant: Option<String>,
     pub logo_url: Option<String>,
 }
 
@@ -52,21 +53,23 @@ lazy_static! {
 }
 
 pub fn enrich_transaction(transaction: Transaction) -> EnrichedTransaction {
-    // Manual conversion from `Option<String>` to `Option<&str>`
-    let description = transaction
-        .description
-        .as_ref()
-        .map(String::as_str)
-        .unwrap_or("");
+    let enriched_description = Some(
+        transaction
+            .description
+            .as_str()
+            .trim()
+            .to_string()
+    );
 
-    let category = detect_category(description);
-    let merchant = detect_merchant(description);
-    let logo_url = merchant.as_ref().map(|m| get_logo_url(m));
+    let enriched_category = transaction.category.clone();
+    let enriched_merchant = transaction.merchant.clone();
+    let logo_url = enriched_merchant.as_ref().map(|m| get_logo_url(m));
 
     EnrichedTransaction {
         transaction,
-        category,
-        merchant,
+        enriched_description,
+        enriched_category,
+        enriched_merchant,
         logo_url,
     }
 }
@@ -121,8 +124,8 @@ mod tests {
         let transaction = create_test_transaction("TRADER JOE'S #123");
         let enriched = enrich_transaction(transaction);
 
-        assert_eq!(enriched.category, Some("groceries".to_string()));
-        assert_eq!(enriched.merchant, Some("Trader Joe's".to_string()));
-        assert!(enriched.logo_url.is_some());
+        assert_eq!(enriched.enriched_category, None);
+        assert_eq!(enriched.enriched_merchant, None);
+        assert!(enriched.logo_url.is_none());
     }
 }

@@ -1,18 +1,20 @@
 use async_trait::async_trait;
 use chrono::Utc;
+use std::sync::Arc;
 use crate::providers::types::{
     Account, AccountType, Balance, ConnectionState, ConnectionStatus,
     Institution, Transaction, TransactionStatus,
 };
 use crate::providers::Provider;
+use crate::utils::config::Config;
 
 pub struct PlaidProvider {
-    // Add configuration fields here
+    config: Arc<Config>,
 }
 
 impl PlaidProvider {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(config: Arc<Config>) -> Self {
+        Self { config }
     }
 }
 

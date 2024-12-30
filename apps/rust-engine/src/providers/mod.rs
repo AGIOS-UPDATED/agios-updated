@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-use serde_json::Value;
 use std::sync::Arc;
 use std::collections::HashMap;
 use std::error::Error;
@@ -56,22 +55,20 @@ pub trait Provider: Send + Sync + 'static {
 
 pub struct ProviderFactory {
     providers: HashMap<String, Arc<dyn Provider>>,
-    config: Arc<config::Config>, // or config::Config if you want it by value
+    config: Arc<config::Config>,
 }
 
 impl ProviderFactory {
-    // Updated signature to accept config
     pub fn new(config: Arc<config::Config>) -> Self {
-        let mut providers = HashMap::new();
+        let mut providers: HashMap<String, Arc<dyn Provider>> = HashMap::new();
 
-        // Hypothetical new() methods that accept config
         providers.insert(
             "plaid".to_string(), 
-            Arc::new(plaid::PlaidProvider::new(config.clone()))
+            Arc::new(plaid::PlaidProvider::new(config.clone())) as Arc<dyn Provider>
         );
         providers.insert(
             "wise".to_string(), 
-            Arc::new(wise::WiseProvider::new(config.clone()))
+            Arc::new(wise::WiseProvider::new(config.clone())) as Arc<dyn Provider>
         );
 
         Self { 
@@ -84,4 +81,3 @@ impl ProviderFactory {
         self.providers.get(provider).cloned()
     }
 }
-

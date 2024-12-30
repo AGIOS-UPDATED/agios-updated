@@ -4,8 +4,10 @@ use actix_web::{web, App, HttpServer};
 use sqlx::postgres::PgPoolOptions;
 use env_logger::Env;
 use std::fs;
+use crate::{utils::config};
 
-mod config;
+
+
 mod error;
 mod middleware;
 mod providers;

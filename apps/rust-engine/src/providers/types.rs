@@ -30,7 +30,7 @@ pub struct Balance {
     pub currency: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Transaction {
     pub id: String,
     pub account_id: String,
@@ -43,7 +43,7 @@ pub struct Transaction {
     pub status: TransactionStatus,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TransactionStatus {
     Pending,
     Posted,
