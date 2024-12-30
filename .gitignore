@@ -59,3 +59,45 @@ tailwind.css
 
 # Trigger
 .trigger
+
+# Ignore build output
+/target/
+
+# Ignore debug log files
+*.log
+
+# Ignore generated files by Cargo
+Cargo.lock
+**/*.rs.bk
+
+# Ignore IDE/editor specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore binary files
+*.exe
+*.out
+*.obj
+*.dll
+*.dylib
+*.so
+
+# Ignore Git-specific files
+*.orig
+
+# Ignore coverage results
+/coverage/
+
+# Ignore Rust documentation output
+/doc/
+
+# Ignore Rust build scripts output
+/.cargo/

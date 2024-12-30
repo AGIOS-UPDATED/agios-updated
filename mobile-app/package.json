@@ -1,0 +1,19 @@
+{  
+  "name": "mobile-app",  
+  "version": "1.0.0",  
+  "private": true,  
+  "scripts": {  
+    "start": "react-native start",  
+    "android": "react-native run-android",  
+    "ios": "react-native run-ios",  
+    "build": "react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ios/main.jsbundle --assets-dest ios",  
+    "test": "jest"  
+  },  
+  "dependencies": {  
+    "react": "17.0.2",  
+    "react-native": "0.64.2"  
+  },  
+  "devDependencies": {  
+    "jest": "^26.6.0"  
+  }  
+}
