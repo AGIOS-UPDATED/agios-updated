@@ -1,56 +1,42 @@
-'use client';
-
-import { type FC } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useStore } from '@nanostores/react';
+import { ClientOnly } from 'remix-utils/client-only';
+import { chatStore } from '@/lib/stores/chat';
+import { classNames } from '@/utils/chat-assistant/classNames';
 import { HeaderActionButtons } from './HeaderActionButtons';
+import { ChatDescription } from '@/lib/persistence/ChatDescription.client';
 
-interface HeaderProps {
-  onSettingsClick: () => void;
-  onHelpClick: () => void;
-}
+export function Header() {
+  const chat = useStore(chatStore);
 
-export const Header: FC<HeaderProps> = ({ onSettingsClick, onHelpClick }) => {
   return (
-    <header className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <Image
-                src="/logo.svg"
-                alt="Cascade Logo"
-                width={32}
-                height={32}
-                priority
-              />
-              <span className="text-xl font-semibold text-gray-900">Cascade</span>
-            </Link>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <nav className="hidden md:flex space-x-8">
-              <Link
-                href="/chat"
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Chat
-              </Link>
-              <Link
-                href="/docs"
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Documentation
-              </Link>
-            </nav>
-
-            <HeaderActionButtons
-              onSettingsClick={onSettingsClick}
-              onHelpClick={onHelpClick}
-            />
-          </div>
-        </div>
+    <header
+      className={classNames('flex items-center p-5 border-b h-[var(--header-height)]', {
+        'border-transparent': !chat.started,
+        'border-bolt-elements-borderColor': chat.started,
+      })}
+    >
+      <div className="flex items-center gap-2 z-logo text-bolt-elements-textPrimary cursor-pointer">
+        <div className="i-ph:sidebar-simple-duotone text-xl" />
+        <a href="/" className="text-2xl font-semibold text-accent flex items-center">
+          {/* <span className="i-bolt:logo-text?mask w-[46px] inline-block" /> */}
+          <img src="/updated-light.png" alt="logo" className="w-[120px] inline-block dark:hidden" />
+          <img src="/updated-dark.png" alt="logo" className="w-[120px] inline-block hidden dark:block" />
+        </a>
       </div>
+      {chat.started && ( // Display ChatDescription and HeaderActionButtons only when the chat has started.
+        <>
+          <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
+            <ClientOnly>{() => <ChatDescription />}</ClientOnly>
+          </span>
+          <ClientOnly>
+            {() => (
+              <div className="mr-1">
+                <HeaderActionButtons />
+              </div>
+            )}
+          </ClientOnly>
+        </>
+      )}
     </header>
   );
-};
+}
