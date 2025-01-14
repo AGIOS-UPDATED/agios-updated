@@ -1,6 +1,6 @@
 import { createDataStream } from 'ai';
-import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '@/lib/constants';
-import { CONTINUE_PROMPT } from '@/lib/prompts';
+import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS } from '@/lib/llm/contants';
+import { CONTINUE_PROMPT } from '@/lib/common/prompt';
 import { streamText } from '@/lib/llm/stream-text';
 import { SwitchableStream } from '@/lib/llm/switchable-stream';
 import { type Messages, type StreamingOptions } from '@/types/chat';

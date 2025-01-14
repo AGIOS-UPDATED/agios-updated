@@ -6,10 +6,10 @@ interface BinaryContentProps {
   filename: string;
 }
 
-export const BinaryContent: FC<BinaryContentProps> = ({ filename }) => {
+export function BinaryContent() {
   return (
-    <div className="flex items-center justify-center h-full p-4 bg-gray-100 text-gray-600">
-      <p>Binary file: {filename}</p>
+    <div className="flex items-center justify-center absolute inset-0 z-10 text-sm bg-tk-elements-app-backgroundColor text-tk-elements-app-textColor">
+      File format cannot be displayed.
     </div>
   );
-};
+}

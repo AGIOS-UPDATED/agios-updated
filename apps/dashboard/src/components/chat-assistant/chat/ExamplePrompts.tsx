@@ -18,7 +18,7 @@ export const ExamplePrompts: FC<ExamplePromptsProps> = ({ onSelect }) => {
     <div className="space-y-4">
       <h3 className="text-sm font-medium text-gray-900">Example prompts</h3>
       <div className="grid grid-cols-1 gap-3">
-        {examplePrompts.map((prompt, index) => (
+        {examplePrompts.map((prompt:any, index:number) => (
           <button
             key={index}
             onClick={() => onSelect(prompt)}

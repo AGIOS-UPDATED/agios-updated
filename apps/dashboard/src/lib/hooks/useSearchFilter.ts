@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { debounce } from '@/utils/debounce';
+import { debounce } from '@/utils/chat-assistant/debounce';
 import type { ChatHistoryItem } from '@/lib/persistence';
 
 interface UseSearchFilterOptions {

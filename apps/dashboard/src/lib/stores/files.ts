@@ -3,11 +3,11 @@ import { getEncoding } from 'istextorbinary';
 import { map, type MapStore } from 'nanostores';
 import { Buffer } from 'node:buffer';
 import * as nodePath from 'node:path';
-import { bufferWatchEvents } from '@/utils/buffer';
-import { WORK_DIR } from '@/utils/constants';
-import { computeFileModifications } from '@/utils/diff';
-import { createScopedLogger } from '@/utils/logger';
-import { unreachable } from '@/utils/unreachable';
+import { bufferWatchEvents } from '@/utils/chat-assistant/buffer';
+import { WORK_DIR } from '@/utils/chat-assistant/constants';
+import { computeFileModifications } from '@/utils/chat-assistant/diff';
+import { createScopedLogger } from '@/utils/chat-assistant/logger';
+import { unreachable } from '@/utils/chat-assistant/unreachable';
 
 const logger = createScopedLogger('FilesStore');
 

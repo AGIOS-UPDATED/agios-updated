@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { FileMap } from '@/lib/stores/files';
-import { classNames } from '@/utils/classNames';
-import { createScopedLogger, renderLogger } from '@/utils/logger';
+import { classNames } from '@/utils/chat-assistant/classNames';
+import { createScopedLogger, renderLogger } from '@/utils/chat-assistant/logger';
 import * as ContextMenu from '@radix-ui/react-context-menu';
 
 const logger = createScopedLogger('FileTree');

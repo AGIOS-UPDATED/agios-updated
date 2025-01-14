@@ -1,6 +1,6 @@
 import { createParser } from 'eventsource-parser';
 import type { Messages, StreamingOptions } from '@/types/chat';
-import { createScopedLogger } from '@/utils/logger';
+import { createScopedLogger } from '@/utils/chat-assistant/logger';
 
 const logger = createScopedLogger('stream-text');
 

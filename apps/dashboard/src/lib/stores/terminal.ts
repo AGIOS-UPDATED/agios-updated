@@ -3,8 +3,8 @@
 import type { WebContainer, WebContainerProcess } from '@webcontainer/api';
 import { atom, type WritableAtom } from 'nanostores';
 import type { ITerminal } from '@/types/terminal';
-import { newBoltShellProcess, newShellProcess } from '@/utils/shell';
-import { coloredText } from '@/utils/terminal';
+import { newBoltShellProcess, newShellProcess } from '@/utils/chat-assistant/shell';
+import { coloredText } from '@/utils/chat-assistant/terminal';
 
 export class TerminalStore {
   #webcontainer: Promise<WebContainer>;

@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import * as SwitchPrimitive from '@radix-ui/react-switch';
-import { classNames } from '@/utils/classNames';
+import { classNames } from '@/utils/chat-assistant/classNames';
 
 interface SwitchProps {
   className?: string;

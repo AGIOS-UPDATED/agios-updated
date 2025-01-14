@@ -2,9 +2,9 @@
 
 import { motion } from 'framer-motion';
 import { memo } from 'react';
-import { classNames } from '@/utils/classNames';
-import { cubicEasingFn } from '@/utils/easings';
-import { genericMemo } from '@/utils/react';
+import { classNames } from '@/utils/chat-assistant/classNames';
+import { cubicEasingFn } from '@/utils/chat-assistant/easings';
+import { genericMemo } from '@/utils/chat-assistant/react';
 
 interface SliderOption<T> {
   value: T;

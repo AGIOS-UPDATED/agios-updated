@@ -1,6 +1,6 @@
 import { useStore } from '@nanostores/react';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { IconButton } from '@/components/ui/IconButton';
+import { IconButton } from '@/components/chat-assistant/ui/IconButton';
 import { workbenchStore } from '@/lib/stores/workbench';
 import { PortDropdown } from './PortDropdown';
 import { ScreenshotSelector } from './ScreenshotSelector';

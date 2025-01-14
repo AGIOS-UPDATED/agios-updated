@@ -1,5 +1,5 @@
 import type { Message } from 'ai';
-import { createScopedLogger } from '@/utils/logger';
+import { createScopedLogger } from '@/utils/chat-assistant/logger';
 import type { ChatHistoryItem } from './useChatHistory';
 
 const logger = createScopedLogger('ChatHistory');

@@ -2,10 +2,10 @@ import { WebContainer } from '@webcontainer/api';
 import { atom, map, type MapStore } from 'nanostores';
 import * as nodePath from 'node:path';
 import type { ActionAlert, BoltAction } from '@/types/actions';
-import { createScopedLogger } from '@/utils/logger';
-import { unreachable } from '@/utils/unreachable';
+import { createScopedLogger } from '@/utils/chat-assistant/logger';
+import { unreachable } from '@/utils/chat-assistant/unreachable';
 import type { ActionCallbackData } from './message-parser';
-import type { BoltShell } from '@/utils/shell';
+import type { BoltShell } from '@/utils/chat-assistant/shell';
 
 const logger = createScopedLogger('ActionRunner');
 

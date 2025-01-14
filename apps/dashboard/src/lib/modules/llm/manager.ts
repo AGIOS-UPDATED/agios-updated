@@ -2,7 +2,7 @@ import type { IProviderSetting } from '@/types/model';
 import { BaseProvider } from './base-provider';
 import type { ModelInfo, ProviderInfo } from './types';
 import * as providers from './registry';
-import { createScopedLogger } from '@/utils/logger';
+import { createScopedLogger } from '@/utils/chat-assistant/logger';
 
 const logger = createScopedLogger('LLMManager');
 export class LLMManager {

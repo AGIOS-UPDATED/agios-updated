@@ -8,14 +8,14 @@ import {
   type OnChangeCallback as OnEditorChange,
   type OnSaveCallback as OnEditorSave,
   type OnScrollCallback as OnEditorScroll,
-} from '@/components/editor/codemirror/CodeMirrorEditor';
-import { PanelHeader } from '@/components/ui/PanelHeader';
-import { PanelHeaderButton } from '@/components/ui/PanelHeaderButton';
+} from '@/components/chat-assistant/editor/codemirror/CodeMirrorEditor';
+import { PanelHeader } from '@/components/chat-assistant/ui/PanelHeader';
+import { PanelHeaderButton } from '@/components/chat-assistant/ui/PanelHeaderButton';
 import type { FileMap } from '@/lib/stores/files';
 import { themeStore } from '@/lib/stores/theme';
-import { WORK_DIR } from '@/utils/constants';
-import { renderLogger } from '@/utils/logger';
-import { isMobile } from '@/utils/mobile';
+import { WORK_DIR } from '@/utils/chat-assistant/constants';
+import { renderLogger } from '@/utils/chat-assistant/logger';
+import { isMobile } from '@/utils/chat-assistant/mobile';
 import { FileBreadcrumb } from './FileBreadcrumb';
 import { FileTree } from './FileTree';
 import { DEFAULT_TERMINAL_SIZE, TerminalTabs } from './terminal/TerminalTabs';

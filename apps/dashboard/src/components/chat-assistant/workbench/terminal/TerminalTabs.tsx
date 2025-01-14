@@ -1,13 +1,13 @@
 import { useStore } from '@nanostores/react';
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { Panel, type ImperativePanelHandle } from 'react-resizable-panels';
-import { IconButton } from '@/components/ui/IconButton';
+import { IconButton } from '@/components/chat-assistant/ui/IconButton';
 import { shortcutEventEmitter } from '@/lib/hooks';
 import { themeStore } from '@/lib/stores/theme';
 import { workbenchStore } from '@/lib/stores/workbench';
-import { classNames } from '@/utils/classNames';
+import { classNames } from '@/utils/chat-assistant/classNames';
 import { Terminal, type TerminalRef } from './Terminal';
-import { createScopedLogger } from '@/utils/logger';
+import { createScopedLogger } from '@/utils/chat-assistant/logger';
 
 const logger = createScopedLogger('Terminal');
 

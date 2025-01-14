@@ -2,6 +2,7 @@
   "extends": "@midday/tsconfig/nextjs.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "jsx": "react-jsx",
     "paths": {
       "@/*": ["./src/*"]
     },

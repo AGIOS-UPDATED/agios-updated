@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { classNames } from '@/utils/classNames';
+import { classNames } from '@/utils/chat-assistant/classNames';
 
 interface PanelHeaderProps {
   className?: string;

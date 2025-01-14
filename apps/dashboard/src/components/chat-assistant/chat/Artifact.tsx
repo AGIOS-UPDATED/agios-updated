@@ -3,7 +3,7 @@
 import { type FC, useState } from 'react';
 import { FiDownload, FiEye, FiCopy, FiMaximize2, FiMinimize2 } from 'react-icons/fi';
 import { CodeBlock } from './CodeBlock';
-import { classNames } from '@/utils/classNames';
+import { classNames } from '@/utils/chat-assistant/classNames';
 
 interface ArtifactProps {
   type: 'code' | 'image' | 'file';

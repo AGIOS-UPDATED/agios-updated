@@ -1,6 +1,6 @@
 import { atom, map } from 'nanostores';
 import { workbenchStore } from './workbench';
-import { PROVIDER_LIST } from '@/utils/constants';
+import { PROVIDER_LIST } from '@/utils/chat-assistant/constants';
 import type { IProviderConfig } from '@/types/model';
 
 export interface Shortcut {
