@@ -18,9 +18,9 @@ import {
 } from '@codemirror/view';
 import { memo, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { Theme } from '@/types/theme';
-import { classNames } from '@/utils/classNames';
-import { debounce } from '@/utils/debounce';
-import { createScopedLogger, renderLogger } from '@/utils/logger';
+import { classNames } from '@/utils/chat-assistant/classNames';
+import { debounce } from '@/utils/chat-assistant/debounce';
+import { createScopedLogger, renderLogger } from '@/utils/chat-assistant/logger';
 import { BinaryContent } from './BinaryContent';
 import { getTheme, reconfigureTheme } from './cm-theme';
 import { indentKeyBinding } from './indent';

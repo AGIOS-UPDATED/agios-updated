@@ -1,5 +1,5 @@
-import { IconButton } from '~/components/ui/IconButton';
-import { classNames } from '~/utils/classNames';
+import { IconButton } from '@/components/chat-assistant/ui/IconButton';
+import { classNames } from '@/utils/chat-assistant/classNames';
 import React from 'react';
 
 export const SpeechRecognitionButton = ({

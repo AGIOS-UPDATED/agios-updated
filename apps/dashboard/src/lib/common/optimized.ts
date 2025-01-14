@@ -1,4 +1,4 @@
-import type { PromptOptions } from '~/lib/common/prompt-library';
+import type { PromptOptions } from '@/lib/common/prompt-library';
 
 export default (options: PromptOptions) => {
   const { cwd, allowedHtmlElements, modificationTagName } = options;
