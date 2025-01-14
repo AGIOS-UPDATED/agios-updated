@@ -1,8 +1,8 @@
 import { streamText } from '@/lib/llm/stream-text';
 import type { IProviderSetting, ProviderInfo } from '@/types/model';
 import { generateText } from 'ai';
-import { getModelList, PROVIDER_LIST } from '@/utils/constants';
-import { MAX_TOKENS } from '@/lib/constants';
+import { getModelList, PROVIDER_LIST } from '@/utils/chat-assistant/constants';
+import { MAX_TOKENS } from '@/lib/llm/contants';
 
 function parseCookies(cookieHeader: string) {
   const cookies: any = {};

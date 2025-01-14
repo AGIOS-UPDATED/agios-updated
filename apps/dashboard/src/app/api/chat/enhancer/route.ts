@@ -1,5 +1,5 @@
 import { streamText } from '@/lib/llm/stream-text';
-import { stripIndents } from '@/utils/stripIndent';
+import { stripIndents } from '@/utils/chat-assistant/stripIndent';
 import type { IProviderSetting, ProviderInfo } from '@/types/model';
 
 function parseCookies(cookieHeader: string) {

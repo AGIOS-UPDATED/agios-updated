@@ -1,11 +1,11 @@
 import ignore from 'ignore';
-import { useGit } from '~/lib/hooks/useGit';
+import { useGit } from '@/lib/hooks/useGit';
 import type { Message } from 'ai';
-import { detectProjectCommands, createCommandsMessage } from '~/utils/projectCommands';
-import { generateId } from '~/utils/fileUtils';
+import { detectProjectCommands, createCommandsMessage } from '@/utils/chat-assistant/projectCommands';
+import { generateId } from '@/utils/chat-assistant/fileUtils';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { LoadingOverlay } from '~/components/ui/LoadingOverlay';
+import { LoadingOverlay } from '@/components/chat-assistant/ui/LoadingOverlay';
 
 const IGNORE_PATTERNS = [
   'node_modules/**',
