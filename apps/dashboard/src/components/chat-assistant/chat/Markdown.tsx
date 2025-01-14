@@ -1,76 +1,118 @@
-import { type FC } from 'react';
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
-import remarkGfm from 'remark-gfm';
+import { memo, useMemo } from 'react';
+import ReactMarkdown, { type Components } from 'react-markdown';
+import type { BundledLanguage } from 'shiki';
+import { createScopedLogger } from '~/utils/logger';
+import { rehypePlugins, remarkPlugins, allowedHTMLElements } from '~/utils/markdown';
+import { Artifact } from './Artifact';
 import { CodeBlock } from './CodeBlock';
 
+import styles from './Markdown.module.scss';
+
+const logger = createScopedLogger('MarkdownComponent');
+
 interface MarkdownProps {
-  content: string;
+  children: string;
+  html?: boolean;
+  limitedMarkdown?: boolean;
 }
 
-export const Markdown: FC<MarkdownProps> = ({ content }) => {
-  return (
-    <div className="prose prose-sm max-w-none dark:prose-invert">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          code({ node, inline, className, children, ...props }) {
-            const match = /language-(\w+)/.exec(className || '');
-            const language = match ? match[1] : '';
-            
-            if (!inline && language) {
-              return (
-                <CodeBlock
-                  language={language}
-                  value={String(children).replace(/\n$/, '')}
-                  {...props}
-                />
-              );
-            }
+export const Markdown = memo(({ children, html = false, limitedMarkdown = false }: MarkdownProps) => {
+  logger.trace('Render');
 
-            return inline ? (
-              <code className={className} {...props}>
-                {children}
-              </code>
-            ) : (
-              <SyntaxHighlighter
-                style={vscDarkPlus}
-                language={language || 'text'}
-                PreTag="div"
-                {...props}
-              >
-                {String(children).replace(/\n$/, '')}
-              </SyntaxHighlighter>
-            );
-          },
-          // Add custom styling for other markdown elements
-          p: ({ children }) => <p className="mb-4">{children}</p>,
-          h1: ({ children }) => (
-            <h1 className="text-2xl font-bold mb-4">{children}</h1>
-          ),
-          h2: ({ children }) => (
-            <h2 className="text-xl font-bold mb-3">{children}</h2>
-          ),
-          h3: ({ children }) => (
-            <h3 className="text-lg font-bold mb-2">{children}</h3>
-          ),
-          ul: ({ children }) => (
-            <ul className="list-disc list-inside mb-4">{children}</ul>
-          ),
-          ol: ({ children }) => (
-            <ol className="list-decimal list-inside mb-4">{children}</ol>
-          ),
-          li: ({ children }) => <li className="mb-1">{children}</li>,
-          blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-gray-300 pl-4 italic mb-4">
-              {children}
-            </blockquote>
-          ),
-        }}
-      >
-        {content}
-      </ReactMarkdown>
-    </div>
+  const components = useMemo(() => {
+    return {
+      div: ({ className, children, node, ...props }) => {
+        if (className?.includes('__boltArtifact__')) {
+          const messageId = node?.properties.dataMessageId as string;
+
+          if (!messageId) {
+            logger.error(`Invalid message id ${messageId}`);
+          }
+
+          return <Artifact messageId={messageId} />;
+        }
+
+        return (
+          <div className={className} {...props}>
+            {children}
+          </div>
+        );
+      },
+      pre: (props) => {
+        const { children, node, ...rest } = props;
+
+        const [firstChild] = node?.children ?? [];
+
+        if (
+          firstChild &&
+          firstChild.type === 'element' &&
+          firstChild.tagName === 'code' &&
+          firstChild.children[0].type === 'text'
+        ) {
+          const { className, ...rest } = firstChild.properties;
+          const [, language = 'plaintext'] = /language-(\w+)/.exec(String(className) || '') ?? [];
+
+          return <CodeBlock code={firstChild.children[0].value} language={language as BundledLanguage} {...rest} />;
+        }
+
+        return <pre {...rest}>{children}</pre>;
+      },
+    } satisfies Components;
+  }, []);
+
+  return (
+    <ReactMarkdown
+      allowedElements={allowedHTMLElements}
+      className={styles.MarkdownContent}
+      components={components}
+      remarkPlugins={remarkPlugins(limitedMarkdown)}
+      rehypePlugins={rehypePlugins(html)}
+    >
+      {stripCodeFenceFromArtifact(children)}
+    </ReactMarkdown>
   );
+});
+
+/**
+ * Removes code fence markers (```) surrounding an artifact element while preserving the artifact content.
+ * This is necessary because artifacts should not be wrapped in code blocks when rendered for rendering action list.
+ *
+ * @param content - The markdown content to process
+ * @returns The processed content with code fence markers removed around artifacts
+ *
+ * @example
+ * // Removes code fences around artifact
+ * const input = "```xml\n<div class='__boltArtifact__'></div>\n```";
+ * stripCodeFenceFromArtifact(input);
+ * // Returns: "\n<div class='__boltArtifact__'></div>\n"
+ *
+ * @remarks
+ * - Only removes code fences that directly wrap an artifact (marked with __boltArtifact__ class)
+ * - Handles code fences with optional language specifications (e.g. ```xml, ```typescript)
+ * - Preserves original content if no artifact is found
+ * - Safely handles edge cases like empty input or artifacts at start/end of content
+ */
+export const stripCodeFenceFromArtifact = (content: string) => {
+  if (!content || !content.includes('__boltArtifact__')) {
+    return content;
+  }
+
+  const lines = content.split('\n');
+  const artifactLineIndex = lines.findIndex((line) => line.includes('__boltArtifact__'));
+
+  // Return original content if artifact line not found
+  if (artifactLineIndex === -1) {
+    return content;
+  }
+
+  // Check previous line for code fence
+  if (artifactLineIndex > 0 && lines[artifactLineIndex - 1]?.trim().match(/^```\w*$/)) {
+    lines[artifactLineIndex - 1] = '';
+  }
+
+  if (artifactLineIndex < lines.length - 1 && lines[artifactLineIndex + 1]?.trim().match(/^```$/)) {
+    lines[artifactLineIndex + 1] = '';
+  }
+
+  return lines.join('\n');
 };

@@ -1,91 +1,105 @@
-import { type FC, useState, useEffect } from 'react';
-import { PROVIDER_LIST } from '@/utils/constants';
-
-interface Model {
-  id: string;
-  name: string;
-  provider: string;
-  description?: string;
-}
+import type { ProviderInfo } from '~/types/model';
+import { useEffect } from 'react';
+import type { ModelInfo } from '~/lib/modules/llm/types';
 
 interface ModelSelectorProps {
-  selectedModel: string;
-  onModelChange: (model: string, provider: any) => void;
+  model?: string;
+  setModel?: (model: string) => void;
+  provider?: ProviderInfo;
+  setProvider?: (provider: ProviderInfo) => void;
+  modelList: ModelInfo[];
+  providerList: ProviderInfo[];
+  apiKeys: Record<string, string>;
+  modelLoading?: string;
 }
 
-export const ModelSelector: FC<ModelSelectorProps> = ({
-  selectedModel,
-  onModelChange,
-}) => {
-  const [models, setModels] = useState<Model[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export const ModelSelector = ({
+  model,
+  setModel,
+  provider,
+  setProvider,
+  modelList,
+  providerList,
+  modelLoading,
+}: ModelSelectorProps) => {
+  // Load enabled providers from cookies
 
+  // Update enabled providers when cookies change
   useEffect(() => {
-    const fetchModels = async () => {
-      try {
-        const response = await fetch('/api/models');
-        if (!response.ok) {
-          throw new Error('Failed to fetch models');
-        }
-        const data = await response.json();
-        setModels(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load models');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchModels();
-  }, []);
-
-  const handleModelChange = (modelId: string) => {
-    const model = models.find(m => m.id === modelId);
-
-    if (model) {
-
-      const provider = PROVIDER_LIST.find(p => p.name === model.provider);
-     
-      if (provider) {
-        onModelChange(modelId, provider);
-      }
-
+    // If current provider is disabled, switch to first enabled provider
+    if (providerList.length == 0) {
+      return;
     }
-  };
 
-  if (loading) {
-    return (
-      <div className="animate-pulse flex space-x-4">
-        <div className="h-10 w-full bg-gray-200 rounded"></div>
-      </div>
-    );
-  }
+    if (provider && !providerList.map((p) => p.name).includes(provider.name)) {
+      const firstEnabledProvider = providerList[0];
+      setProvider?.(firstEnabledProvider);
 
-  if (error) {
+      // Also update the model to the first available one for the new provider
+      const firstModel = modelList.find((m) => m.provider === firstEnabledProvider.name);
+
+      if (firstModel) {
+        setModel?.(firstModel.name);
+      }
+    }
+  }, [providerList, provider, setProvider, modelList, setModel]);
+
+  if (providerList.length === 0) {
     return (
-      <div className="text-red-500 text-sm">
-        Error loading models: {error}
+      <div className="mb-2 p-4 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary">
+        <p className="text-center">
+          No providers are currently enabled. Please enable at least one provider in the settings to start using the
+          chat.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col space-y-2">
-      <label htmlFor="model-select" className="text-sm font-medium text-gray-700">
-        Model
-      </label>
+    <div className="mb-2 flex gap-2 flex-col sm:flex-row">
       <select
-        id="model-select"
-        value={selectedModel}
-        onChange={(e) => handleModelChange(e.target.value)}
-        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+        value={provider?.name ?? ''}
+        onChange={(e) => {
+          const newProvider = providerList.find((p: ProviderInfo) => p.name === e.target.value);
+
+          if (newProvider && setProvider) {
+            setProvider(newProvider);
+          }
+
+          const firstModel = [...modelList].find((m) => m.provider === e.target.value);
+
+          if (firstModel && setModel) {
+            setModel(firstModel.name);
+          }
+        }}
+        className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
       >
-        {models.map((model) => (
-          <option key={model.id} value={model.id}>
-            {model.name} ({model.provider})
+        {providerList.map((provider: ProviderInfo) => (
+          <option key={provider.name} value={provider.name}>
+            {provider.name}
           </option>
         ))}
+      </select>
+      <select
+        key={provider?.name}
+        value={model}
+        onChange={(e) => setModel?.(e.target.value)}
+        className="flex-1 p-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all lg:max-w-[70%]"
+        disabled={modelLoading === 'all' || modelLoading === provider?.name}
+      >
+        {modelLoading == 'all' || modelLoading == provider?.name ? (
+          <option key={0} value="">
+            Loading...
+          </option>
+        ) : (
+          [...modelList]
+            .filter((e) => e.provider == provider?.name && e.name)
+            .map((modelOption, index) => (
+              <option key={index} value={modelOption.name}>
+                {modelOption.label}
+              </option>
+            ))
+        )}
       </select>
     </div>
   );

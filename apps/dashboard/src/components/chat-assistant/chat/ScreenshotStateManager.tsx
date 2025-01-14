@@ -1,26 +1,33 @@
-'use client';
-
-import { type FC, useEffect } from 'react';
-import { useStore } from '@/store';
+import { useEffect } from 'react';
 
 interface ScreenshotStateManagerProps {
-  onScreenshotStart?: () => void;
-  onScreenshotEnd?: () => void;
+  setUploadedFiles?: (files: File[]) => void;
+  setImageDataList?: (dataList: string[]) => void;
+  uploadedFiles: File[];
+  imageDataList: string[];
 }
 
-export const ScreenshotStateManager: FC<ScreenshotStateManagerProps> = ({
-  onScreenshotStart,
-  onScreenshotEnd,
-}) => {
-  const { isScreenshotting } = useStore();
-
+export const ScreenshotStateManager = ({
+  setUploadedFiles,
+  setImageDataList,
+  uploadedFiles,
+  imageDataList,
+}: ScreenshotStateManagerProps) => {
   useEffect(() => {
-    if (isScreenshotting) {
-      onScreenshotStart?.();
-    } else {
-      onScreenshotEnd?.();
+    if (setUploadedFiles && setImageDataList) {
+      (window as any).__BOLT_SET_UPLOADED_FILES__ = setUploadedFiles;
+      (window as any).__BOLT_SET_IMAGE_DATA_LIST__ = setImageDataList;
+      (window as any).__BOLT_UPLOADED_FILES__ = uploadedFiles;
+      (window as any).__BOLT_IMAGE_DATA_LIST__ = imageDataList;
     }
-  }, [isScreenshotting, onScreenshotStart, onScreenshotEnd]);
+
+    return () => {
+      delete (window as any).__BOLT_SET_UPLOADED_FILES__;
+      delete (window as any).__BOLT_SET_IMAGE_DATA_LIST__;
+      delete (window as any).__BOLT_UPLOADED_FILES__;
+      delete (window as any).__BOLT_IMAGE_DATA_LIST__;
+    };
+  }, [setUploadedFiles, setImageDataList, uploadedFiles, imageDataList]);
 
   return null;
 };

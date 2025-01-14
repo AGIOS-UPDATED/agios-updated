@@ -1,33 +1,37 @@
-'use client';
+import React from 'react';
+import type { Template } from '@/types/template';
+import { STARTER_EXCHANGE } from '@/utils/chat-assistant/constants';
 
-import { type FC } from 'react';
-import { useStore } from '@/store';
-
-interface StarterTemplatesProps {
-  onSelect: (template: string) => void;
+interface FrameworkLinkProps {
+  template: Template;
 }
 
-export const StarterTemplates: FC<StarterTemplatesProps> = ({ onSelect }) => {
-  const { starterTemplates } = useStore();
+const FrameworkLink: React.FC<FrameworkLinkProps> = ({ template }) => (
+  <a
+    href={`/git?url=https://github.com/${template.githubRepo}.git`}
+    data-state="closed"
+    data-discover="true"
+    className="items-center justify-center "
+  >
+    <div className="inline-block  dark:text-white text-black underline text-normal mb-4 transition-theme opacity-25 hover:opacity-75 transition-all">
+      {template.name}
+    </div>
+  </a>
+);
 
-  if (!starterTemplates?.length) {
-    return null;
-  }
-
+const StarterTemplates: React.FC = () => {
   return (
-    <div className="space-y-4">
-      <h3 className="text-sm font-medium text-gray-900">Starter templates</h3>
-      <div className="grid grid-cols-1 gap-3">
-        {starterTemplates.map((template, index) => (
-          <button
-            key={index}
-            onClick={() => onSelect(template)}
-            className="text-left p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <p className="text-sm text-gray-600">{template}</p>
-          </button>
-        ))}
+    <div className="flex flex-col items-center gap-4">
+      <span className="text-sm text-gray-500">or start a trade with your favorite platform</span>
+      <div className="flex justify-center">
+        <div className="flex w-70 flex-wrap items-center justify-center gap-4">
+          {STARTER_EXCHANGE.map((template) => (
+            <FrameworkLink key={template.name} template={template} />
+          ))}
+        </div>
       </div>
     </div>
   );
 };
+
+export default StarterTemplates;

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { IconButton } from '@/components/chat-assistant/ui/IconButton';
-import type { ProviderInfo } from '@/types/model';
+import { IconButton } from '~/components/ui/IconButton';
+import type { ProviderInfo } from '~/types/model';
 import Cookies from 'js-cookie';
-import { providerBaseUrlEnvKeys } from '@/utils/chat-assistant/constants';
+import { providerBaseUrlEnvKeys } from '~/utils/constants';
 
 interface APIKeyManagerProps {
   provider: ProviderInfo;

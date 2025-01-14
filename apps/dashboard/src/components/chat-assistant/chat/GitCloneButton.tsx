@@ -1,91 +1,125 @@
-'use client';
+import ignore from 'ignore';
+import { useGit } from '~/lib/hooks/useGit';
+import type { Message } from 'ai';
+import { detectProjectCommands, createCommandsMessage } from '~/utils/projectCommands';
+import { generateId } from '~/utils/fileUtils';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+import { LoadingOverlay } from '~/components/ui/LoadingOverlay';
 
-import { type FC, useState } from 'react';
-import { FiGitBranch, FiLoader } from 'react-icons/fi';
-import { useStore } from '@/store';
+const IGNORE_PATTERNS = [
+  'node_modules/**',
+  '.git/**',
+  '.github/**',
+  '.vscode/**',
+  '**/*.jpg',
+  '**/*.jpeg',
+  '**/*.png',
+  'dist/**',
+  'build/**',
+  '.next/**',
+  'coverage/**',
+  '.cache/**',
+  '.vscode/**',
+  '.idea/**',
+  '**/*.log',
+  '**/.DS_Store',
+  '**/npm-debug.log*',
+  '**/yarn-debug.log*',
+  '**/yarn-error.log*',
+  '**/*lock.json',
+  '**/*lock.yaml',
+];
+
+const ig = ignore().add(IGNORE_PATTERNS);
 
 interface GitCloneButtonProps {
-  onSuccess?: () => void;
-  onError?: (error: Error) => void;
+  className?: string;
+  importChat?: (description: string, messages: Message[]) => Promise<void>;
 }
 
-export const GitCloneButton: FC<GitCloneButtonProps> = ({
-  onSuccess,
-  onError,
-}) => {
-  const [isCloning, setIsCloning] = useState(false);
-  const [repoUrl, setRepoUrl] = useState('');
-  const [showInput, setShowInput] = useState(false);
-  const { cloneRepository } = useStore();
+export default function GitCloneButton({ importChat }: GitCloneButtonProps) {
+  const { ready, gitClone } = useGit();
+  const [loading, setLoading] = useState(false);
 
-  const handleClone = async () => {
-    if (!repoUrl.trim()) return;
+  const onClick = async (_e: any) => {
+    if (!ready) {
+      return;
+    }
 
-    setIsCloning(true);
-    try {
-      await cloneRepository(repoUrl);
-      setRepoUrl('');
-      setShowInput(false);
-      onSuccess?.();
-    } catch (error) {
-      console.error('Failed to clone repository:', error);
-      onError?.(error as Error);
-    } finally {
-      setIsCloning(false);
+    const repoUrl = prompt('Enter the Git url');
+
+    if (repoUrl) {
+      setLoading(true);
+
+      try {
+        const { workdir, data } = await gitClone(repoUrl);
+
+        if (importChat) {
+          const filePaths = Object.keys(data).filter((filePath) => !ig.ignores(filePath));
+          console.log(filePaths);
+
+          const textDecoder = new TextDecoder('utf-8');
+
+          const fileContents = filePaths
+            .map((filePath) => {
+              const { data: content, encoding } = data[filePath];
+              return {
+                path: filePath,
+                content:
+                  encoding === 'utf8' ? content : content instanceof Uint8Array ? textDecoder.decode(content) : '',
+              };
+            })
+            .filter((f) => f.content);
+
+          const commands = await detectProjectCommands(fileContents);
+          const commandsMessage = createCommandsMessage(commands);
+
+          const filesMessage: Message = {
+            role: 'assistant',
+            content: `Cloning the repo ${repoUrl} into ${workdir}
+<boltArtifact id="imported-files" title="Git Cloned Files" type="bundled">
+${fileContents
+  .map(
+    (file) =>
+      `<boltAction type="file" filePath="${file.path}">
+${file.content}
+</boltAction>`,
+  )
+  .join('\n')}
+</boltArtifact>`,
+            id: generateId(),
+            createdAt: new Date(),
+          };
+
+          const messages = [filesMessage];
+
+          if (commandsMessage) {
+            messages.push(commandsMessage);
+          }
+
+          await importChat(`Git Project:${repoUrl.split('/').slice(-1)[0]}`, messages);
+        }
+      } catch (error) {
+        console.error('Error during import:', error);
+        toast.error('Failed to import repository');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  if (!showInput) {
-    return (
-      <button
-        onClick={() => setShowInput(true)}
-        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-      >
-        <FiGitBranch className="mr-2 -ml-0.5 h-4 w-4" />
-        Clone Repository
-      </button>
-    );
-  }
-
   return (
-    <div className="flex flex-col space-y-2">
-      <div className="flex space-x-2">
-        <input
-          type="text"
-          value={repoUrl}
-          onChange={(e) => setRepoUrl(e.target.value)}
-          placeholder="Enter repository URL"
-          className="flex-1 min-w-0 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          disabled={isCloning}
-        />
-        <button
-          onClick={handleClone}
-          disabled={!repoUrl.trim() || isCloning}
-          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isCloning ? (
-            <>
-              <FiLoader className="animate-spin mr-2 -ml-0.5 h-4 w-4" />
-              Cloning...
-            </>
-          ) : (
-            <>
-              <FiGitBranch className="mr-2 -ml-0.5 h-4 w-4" />
-              Clone
-            </>
-          )}
-        </button>
-        <button
-          onClick={() => setShowInput(false)}
-          className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          disabled={isCloning}
-        >
-          Cancel
-        </button>
-      </div>
-      <p className="text-xs text-gray-500">
-        Enter the HTTPS URL of the Git repository you want to clone
-      </p>
-    </div>
+    <>
+      <button
+        onClick={onClick}
+        title="Clone a Git Repo"
+        className="px-4 py-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3 transition-all flex items-center gap-2"
+      >
+        <span className="i-ph:git-branch" />
+        Clone a Git Repo
+      </button>
+      {loading && <LoadingOverlay message="Please wait while we clone the repository..." />}
+    </>
   );
-};
+}

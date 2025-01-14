@@ -1,39 +1,35 @@
-'use client';
-
-import { type FC } from 'react';
-import { FiFile, FiX } from 'react-icons/fi';
+import React from 'react';
 
 interface FilePreviewProps {
-  file: File;
-  onRemove: () => void;
+  files: File[];
+  imageDataList: string[];
+  onRemove: (index: number) => void;
 }
 
-export const FilePreview: FC<FilePreviewProps> = ({ file, onRemove }) => {
+const FilePreview: React.FC<FilePreviewProps> = ({ files, imageDataList, onRemove }) => {
+  if (!files || files.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-      <div className="flex items-center space-x-3">
-        <FiFile className="w-5 h-5 text-gray-400" />
-        <div>
-          <p className="text-sm font-medium text-gray-900">{file.name}</p>
-          <p className="text-xs text-gray-500">
-            {formatFileSize(file.size)}
-          </p>
+    <div className="flex flex-row overflow-x-auto -mt-2">
+      {files.map((file, index) => (
+        <div key={file.name + file.size} className="mr-2 relative">
+          {imageDataList[index] && (
+            <div className="relative pt-4 pr-4">
+              <img src={imageDataList[index]} alt={file.name} className="max-h-20" />
+              <button
+                onClick={() => onRemove(index)}
+                className="absolute top-1 right-1 z-10 bg-black rounded-full w-5 h-5 shadow-md hover:bg-gray-900 transition-colors flex items-center justify-center"
+              >
+                <div className="i-ph:x w-3 h-3 text-gray-200" />
+              </button>
+            </div>
+          )}
         </div>
-      </div>
-      <button
-        onClick={onRemove}
-        className="p-1 text-gray-400 hover:text-gray-500 focus:outline-none"
-      >
-        <FiX className="w-4 h-4" />
-      </button>
+      ))}
     </div>
   );
 };
 
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
-}
+export default FilePreview;

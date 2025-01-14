@@ -1,96 +1,78 @@
-'use client';
+import type { Message } from 'ai';
+import { toast } from 'react-toastify';
+import { ImportFolderButton } from '~/components/chat/ImportFolderButton';
 
-import { type FC, useRef, useState } from 'react';
-import { FiUpload, FiLoader } from 'react-icons/fi';
-import { useStore } from '@/store';
-
-interface ImportButtonsProps {
-  onSuccess?: () => void;
-  onError?: (error: Error) => void;
-}
-
-export const ImportButtons: FC<ImportButtonsProps> = ({
-  onSuccess,
-  onError,
-}) => {
-  const [isImporting, setIsImporting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { importChat } = useStore();
-
-  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsImporting(true);
-    try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          const content = event.target?.result;
-          if (typeof content !== 'string') {
-            throw new Error('Invalid file content');
-          }
-
-          await importChat(content);
-          onSuccess?.();
-        } catch (error) {
-          console.error('Failed to import chat:', error);
-          onError?.(error as Error);
-        } finally {
-          setIsImporting(false);
-          // Reset the input
-          if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-          }
-        }
-      };
-
-      reader.onerror = () => {
-        const error = new Error('Failed to read file');
-        console.error(error);
-        onError?.(error);
-        setIsImporting(false);
-      };
-
-      reader.readAsText(file);
-    } catch (error) {
-      console.error('Failed to import chat:', error);
-      onError?.(error as Error);
-      setIsImporting(false);
-    }
-  };
-
-  const handleClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  return (
-    <>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".json"
-        className="hidden"
-        onChange={handleImport}
-        disabled={isImporting}
-      />
-      <button
-        onClick={handleClick}
-        disabled={isImporting}
-        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {isImporting ? (
-          <>
-            <FiLoader className="animate-spin mr-2 -ml-0.5 h-4 w-4" />
-            Importing...
-          </>
-        ) : (
-          <>
-            <FiUpload className="mr-2 -ml-0.5 h-4 w-4" />
-            Import Chat
-          </>
-        )}
-      </button>
-    </>
-  );
+type ChatData = {
+  messages?: Message[]; // Standard Bolt format
+  description?: string; // Optional description
 };
+
+export function ImportButtons(importChat: ((description: string, messages: Message[]) => Promise<void>) | undefined) {
+  return (
+    <div className="flex flex-col items-center justify-center w-auto">
+      <input
+        type="file"
+        id="chat-import"
+        className="hidden"
+        accept=".json"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+
+          if (file && importChat) {
+            try {
+              const reader = new FileReader();
+
+              reader.onload = async (e) => {
+                try {
+                  const content = e.target?.result as string;
+                  const data = JSON.parse(content) as ChatData;
+
+                  // Standard format
+                  if (Array.isArray(data.messages)) {
+                    await importChat(data.description || 'Imported Chat', data.messages);
+                    toast.success('Chat imported successfully');
+
+                    return;
+                  }
+
+                  toast.error('Invalid chat file format');
+                } catch (error: unknown) {
+                  if (error instanceof Error) {
+                    toast.error('Failed to parse chat file: ' + error.message);
+                  } else {
+                    toast.error('Failed to parse chat file');
+                  }
+                }
+              };
+              reader.onerror = () => toast.error('Failed to read chat file');
+              reader.readAsText(file);
+            } catch (error) {
+              toast.error(error instanceof Error ? error.message : 'Failed to import chat');
+            }
+            e.target.value = ''; // Reset file input
+          } else {
+            toast.error('Something went wrong');
+          }
+        }}
+      />
+      <div className="flex flex-col items-center gap-4 max-w-2xl text-center">
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              const input = document.getElementById('chat-import');
+              input?.click();
+            }}
+            className="px-4 py-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3 transition-all flex items-center gap-2"
+          >
+            <div className="i-ph:upload-simple" />
+            Import Chat
+          </button>
+          <ImportFolderButton
+            importChat={importChat}
+            className="px-4 py-2 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3 transition-all flex items-center gap-2"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}

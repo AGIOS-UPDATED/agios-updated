@@ -1,182 +1,263 @@
-'use client';
+import { useStore } from '@nanostores/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { computed } from 'nanostores';
+import { memo, useEffect, useRef, useState } from 'react';
+import { createHighlighter, type BundledLanguage, type BundledTheme, type HighlighterGeneric } from 'shiki';
+import type { ActionState } from '~/lib/runtime/action-runner';
+import { workbenchStore } from '~/lib/stores/workbench';
+import { classNames } from '~/utils/classNames';
+import { cubicEasingFn } from '~/utils/easings';
+import { WORK_DIR } from '~/utils/constants';
 
-import { type FC, useState } from 'react';
-import { FiDownload, FiEye, FiCopy, FiMaximize2, FiMinimize2 } from 'react-icons/fi';
-import { CodeBlock } from './CodeBlock';
-import { classNames } from '@/utils/chat-assistant/classNames';
-
-interface ArtifactProps {
-  type: 'code' | 'image' | 'file';
-  content: string;
-  filename?: string;
-  language?: string;
-  metadata?: Record<string, any>;
-}
-
-export const Artifact: FC<ArtifactProps> = ({
-  type,
-  content,
-  filename,
-  language,
-  metadata,
-}) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
-
-  const handleDownload = () => {
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename || 'artifact.txt';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(content);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy content:', error);
-    }
-  };
-
-  const handleToggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
-
-  const renderContent = () => {
-    switch (type) {
-      case 'code':
-        return (
-          <div
-            className={classNames(
-              'relative group rounded-lg overflow-hidden',
-              isExpanded ? 'h-auto' : 'max-h-96'
-            )}
-          >
-            <div className="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                onClick={handleCopy}
-                className="p-1.5 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                title={isCopied ? 'Copied!' : 'Copy code'}
-              >
-                <FiCopy className="w-4 h-4" />
-              </button>
-              <button
-                onClick={handleDownload}
-                className="p-1.5 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                title="Download code"
-              >
-                <FiDownload className="w-4 h-4" />
-              </button>
-              <button
-                onClick={handleToggleExpand}
-                className="p-1.5 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                title={isExpanded ? 'Collapse' : 'Expand'}
-              >
-                {isExpanded ? (
-                  <FiMinimize2 className="w-4 h-4" />
-                ) : (
-                  <FiMaximize2 className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-            <CodeBlock
-              code={content}
-              language={language || 'plaintext'}
-              showLineNumbers
-            />
-          </div>
-        );
-
-      case 'image':
-        return (
-          <div className="relative group">
-            <img
-              src={content}
-              alt={filename || 'Generated image'}
-              className="max-w-full h-auto rounded-lg"
-            />
-            <div className="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                onClick={handleDownload}
-                className="p-1.5 rounded-md bg-white text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-                title="Download image"
-              >
-                <FiDownload className="w-4 h-4" />
-              </button>
-              <button
-                onClick={handleToggleExpand}
-                className="p-1.5 rounded-md bg-white text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-                title={isExpanded ? 'View smaller' : 'View larger'}
-              >
-                {isExpanded ? (
-                  <FiMinimize2 className="w-4 h-4" />
-                ) : (
-                  <FiMaximize2 className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-          </div>
-        );
-
-      case 'file':
-        return (
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center space-x-4">
-              <div className="flex-shrink-0">
-                <FiEye className="w-6 h-6 text-gray-400" />
-              </div>
-              <div>
-                <div className="text-sm font-medium text-gray-900">
-                  {filename || 'Unnamed file'}
-                </div>
-                {metadata?.size && (
-                  <div className="text-sm text-gray-500">
-                    Size: {formatFileSize(metadata.size)}
-                  </div>
-                )}
-              </div>
-            </div>
-            <button
-              onClick={handleDownload}
-              className="p-1.5 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              title="Download file"
-            >
-              <FiDownload className="w-4 h-4" />
-            </button>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div
-      className={classNames(
-        'artifact',
-        isExpanded && 'artifact-expanded',
-        type === 'code' && 'artifact-code',
-        type === 'image' && 'artifact-image',
-        type === 'file' && 'artifact-file'
-      )}
-    >
-      {renderContent()}
-    </div>
-  );
+const highlighterOptions = {
+  langs: ['shell'],
+  themes: ['light-plus', 'dark-plus'],
 };
 
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+const shellHighlighter: HighlighterGeneric<BundledLanguage, BundledTheme> =
+  import.meta.hot?.data.shellHighlighter ?? (await createHighlighter(highlighterOptions));
+
+if (import.meta.hot) {
+  import.meta.hot.data.shellHighlighter = shellHighlighter;
+}
+
+interface ArtifactProps {
+  messageId: string;
+}
+
+export const Artifact = memo(({ messageId }: ArtifactProps) => {
+  const userToggledActions = useRef(false);
+  const [showActions, setShowActions] = useState(false);
+  const [allActionFinished, setAllActionFinished] = useState(false);
+
+  const artifacts = useStore(workbenchStore.artifacts);
+  const artifact = artifacts[messageId];
+
+  const actions = useStore(
+    computed(artifact.runner.actions, (actions) => {
+      return Object.values(actions);
+    }),
+  );
+
+  const toggleActions = () => {
+    userToggledActions.current = true;
+    setShowActions(!showActions);
+  };
+
+  useEffect(() => {
+    if (actions.length && !showActions && !userToggledActions.current) {
+      setShowActions(true);
+    }
+
+    if (actions.length !== 0 && artifact.type === 'bundled') {
+      const finished = !actions.find((action) => action.status !== 'complete');
+
+      if (allActionFinished !== finished) {
+        setAllActionFinished(finished);
+      }
+    }
+  }, [actions]);
+
+  return (
+    <div className="artifact border border-bolt-elements-borderColor flex flex-col overflow-hidden rounded-lg w-full transition-border duration-150">
+      <div className="flex">
+        <button
+          className="flex items-stretch bg-bolt-elements-artifacts-background hover:bg-bolt-elements-artifacts-backgroundHover w-full overflow-hidden"
+          onClick={() => {
+            const showWorkbench = workbenchStore.showWorkbench.get();
+            workbenchStore.showWorkbench.set(!showWorkbench);
+          }}
+        >
+          {artifact.type == 'bundled' && (
+            <>
+              <div className="p-4">
+                {allActionFinished ? (
+                  <div className={'i-ph:files-light'} style={{ fontSize: '2rem' }}></div>
+                ) : (
+                  <div className={'i-svg-spinners:90-ring-with-bg'} style={{ fontSize: '2rem' }}></div>
+                )}
+              </div>
+              <div className="bg-bolt-elements-artifacts-borderColor w-[1px]" />
+            </>
+          )}
+          <div className="px-5 p-3.5 w-full text-left">
+            <div className="w-full text-bolt-elements-textPrimary font-medium leading-5 text-sm">{artifact?.title}</div>
+            <div className="w-full w-full text-bolt-elements-textSecondary text-xs mt-0.5">Click to open Workbench</div>
+          </div>
+        </button>
+        <div className="bg-bolt-elements-artifacts-borderColor w-[1px]" />
+        <AnimatePresence>
+          {actions.length && artifact.type !== 'bundled' && (
+            <motion.button
+              initial={{ width: 0 }}
+              animate={{ width: 'auto' }}
+              exit={{ width: 0 }}
+              transition={{ duration: 0.15, ease: cubicEasingFn }}
+              className="bg-bolt-elements-artifacts-background hover:bg-bolt-elements-artifacts-backgroundHover"
+              onClick={toggleActions}
+            >
+              <div className="p-4">
+                <div className={showActions ? 'i-ph:caret-up-bold' : 'i-ph:caret-down-bold'}></div>
+              </div>
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </div>
+      <AnimatePresence>
+        {artifact.type !== 'bundled' && showActions && actions.length > 0 && (
+          <motion.div
+            className="actions"
+            initial={{ height: 0 }}
+            animate={{ height: 'auto' }}
+            exit={{ height: '0px' }}
+            transition={{ duration: 0.15 }}
+          >
+            <div className="bg-bolt-elements-artifacts-borderColor h-[1px]" />
+
+            <div className="p-5 text-left bg-bolt-elements-actions-background">
+              <ActionList actions={actions} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+});
+
+interface ShellCodeBlockProps {
+  classsName?: string;
+  code: string;
+}
+
+function ShellCodeBlock({ classsName, code }: ShellCodeBlockProps) {
+  return (
+    <div
+      className={classNames('text-xs', classsName)}
+      dangerouslySetInnerHTML={{
+        __html: shellHighlighter.codeToHtml(code, {
+          lang: 'shell',
+          theme: 'dark-plus',
+        }),
+      }}
+    ></div>
+  );
+}
+
+interface ActionListProps {
+  actions: ActionState[];
+}
+
+const actionVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
+
+function openArtifactInWorkbench(filePath: any) {
+  if (workbenchStore.currentView.get() !== 'code') {
+    workbenchStore.currentView.set('code');
+  }
+
+  workbenchStore.setSelectedFile(`${WORK_DIR}/${filePath}`);
+}
+
+const ActionList = memo(({ actions }: ActionListProps) => {
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+      <ul className="list-none space-y-2.5">
+        {actions.map((action, index) => {
+          const { status, type, content } = action;
+          const isLast = index === actions.length - 1;
+
+          return (
+            <motion.li
+              key={index}
+              variants={actionVariants}
+              initial="hidden"
+              animate="visible"
+              transition={{
+                duration: 0.2,
+                ease: cubicEasingFn,
+              }}
+            >
+              <div className="flex items-center gap-1.5 text-sm">
+                <div className={classNames('text-lg', getIconColor(action.status))}>
+                  {status === 'running' ? (
+                    <>
+                      {type !== 'start' ? (
+                        <div className="i-svg-spinners:90-ring-with-bg"></div>
+                      ) : (
+                        <div className="i-ph:terminal-window-duotone"></div>
+                      )}
+                    </>
+                  ) : status === 'pending' ? (
+                    <div className="i-ph:circle-duotone"></div>
+                  ) : status === 'complete' ? (
+                    <div className="i-ph:check"></div>
+                  ) : status === 'failed' || status === 'aborted' ? (
+                    <div className="i-ph:x"></div>
+                  ) : null}
+                </div>
+                {type === 'file' ? (
+                  <div>
+                    Create{' '}
+                    <code
+                      className="bg-bolt-elements-artifacts-inlineCode-background text-bolt-elements-artifacts-inlineCode-text px-1.5 py-1 rounded-md text-bolt-elements-item-contentAccent hover:underline cursor-pointer"
+                      onClick={() => openArtifactInWorkbench(action.filePath)}
+                    >
+                      {action.filePath}
+                    </code>
+                  </div>
+                ) : type === 'shell' ? (
+                  <div className="flex items-center w-full min-h-[28px]">
+                    <span className="flex-1">Run command</span>
+                  </div>
+                ) : type === 'start' ? (
+                  <a
+                    onClick={(e) => {
+                      e.preventDefault();
+                      workbenchStore.currentView.set('preview');
+                    }}
+                    className="flex items-center w-full min-h-[28px]"
+                  >
+                    <span className="flex-1">Start Application</span>
+                  </a>
+                ) : null}
+              </div>
+              {(type === 'shell' || type === 'start') && (
+                <ShellCodeBlock
+                  classsName={classNames('mt-1', {
+                    'mb-3.5': !isLast,
+                  })}
+                  code={content}
+                />
+              )}
+            </motion.li>
+          );
+        })}
+      </ul>
+    </motion.div>
+  );
+});
+
+function getIconColor(status: ActionState['status']) {
+  switch (status) {
+    case 'pending': {
+      return 'text-bolt-elements-textTertiary';
+    }
+    case 'running': {
+      return 'text-bolt-elements-loader-progress';
+    }
+    case 'complete': {
+      return 'text-bolt-elements-icon-success';
+    }
+    case 'aborted': {
+      return 'text-bolt-elements-textSecondary';
+    }
+    case 'failed': {
+      return 'text-bolt-elements-icon-error';
+    }
+    default: {
+      return undefined;
+    }
+  }
 }

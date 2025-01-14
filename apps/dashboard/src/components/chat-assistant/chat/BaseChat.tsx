@@ -5,10 +5,10 @@
 import type { Message } from 'ai';
 import React, { type RefCallback, useCallback, useEffect, useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
-import { Menu } from '@/components/sidebar/Menu.client';
-import { IconButton } from '@/components/ui/IconButton';
-import { classNames } from '@/utils/classNames';
-import { MODEL_LIST, PROVIDER_LIST, initializeModelList } from '@/utils/constants';
+import { Menu } from '@/components/chat-assistant/sidebar/Menu';
+import { IconButton } from '@/components/chat-assistant/ui/IconButton';
+import { classNames } from '@/utils/chat-assistant/classNames';
+import { MODEL_LIST, PROVIDER_LIST, initializeModelList } from '@/utils/chat-assistant/constants';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
 import { APIKeyManager, getApiKeysFromCookies } from './APIKeyManager';
@@ -16,11 +16,11 @@ import Cookies from 'js-cookie';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
 import styles from './BaseChat.module.scss';
-import { ExportChatButton } from '@/components/chat/chatExportAndImport/ExportChatButton';
-import { ExamplePrompts } from '@/components/chat/ExamplePrompts';
+import { ExportChatButton } from '@/components/chat-assistant/chat/chatExportAndImport/ExportChatButton';
+import { ExamplePrompts } from '@/components/chat-assistant/chat/ExamplePrompts';
 import FilePreview from './FilePreview';
-import { ModelSelector } from '@/components/chat/ModelSelector';
-import { SpeechRecognitionButton } from '@/components/chat/SpeechRecognition';
+import { ModelSelector } from '@/components/chat-assistant/chat/ModelSelector';
+import { SpeechRecognitionButton } from '@/components/chat-assistant/chat/SpeechRecognition';
 import type { IProviderSetting, ProviderInfo } from '@/types/model';
 import { ScreenshotStateManager } from './ScreenshotStateManager';
 import { toast } from 'react-toastify';
@@ -28,7 +28,7 @@ import StarterTemplates from './StarterTemplates';
 import type { ActionAlert } from '@/types/actions';
 import ChatAlert from './ChatAlert';
 import { LLMManager } from '@/lib/modules/llm/manager';
-import AxisGraph from '@/components/graphs/AxisGraph';
+import AxisGraph from '@/components/chat-assistant/graphs/AxisGraph';
 
 const TEXTAREA_MIN_HEIGHT = 76;
 

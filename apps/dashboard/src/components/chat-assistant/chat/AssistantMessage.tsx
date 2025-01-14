@@ -1,37 +1,31 @@
-import { type FC } from 'react';
+import { memo } from 'react';
 import { Markdown } from './Markdown';
+import type { JSONValue } from 'ai';
 
 interface AssistantMessageProps {
   content: string;
-  timestamp?: string;
-  isLoading?: boolean;
+  annotations?: JSONValue[];
 }
 
-export const AssistantMessage: FC<AssistantMessageProps> = ({
-  content,
-  timestamp,
-  isLoading,
-}) => {
+export const AssistantMessage = memo(({ content, annotations }: AssistantMessageProps) => {
+  const filteredAnnotations = (annotations?.filter(
+    (annotation: JSONValue) => annotation && typeof annotation === 'object' && Object.keys(annotation).includes('type'),
+  ) || []) as { type: string; value: any }[];
+
+  const usage: {
+    completionTokens: number;
+    promptTokens: number;
+    totalTokens: number;
+  } = filteredAnnotations.find((annotation) => annotation.type === 'usage')?.value;
+
   return (
-    <div className="flex flex-col space-y-2 p-4 bg-white rounded-lg border border-gray-200">
-      <div className="flex items-center space-x-2">
-        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white">
-          A
+    <div className="overflow-hidden w-full">
+      {usage && (
+        <div className="text-sm text-bolt-elements-textSecondary mb-2">
+          Tokens: {usage.totalTokens} (prompt: {usage.promptTokens}, completion: {usage.completionTokens})
         </div>
-        {timestamp && (
-          <span className="text-sm text-gray-500">{timestamp}</span>
-        )}
-        {isLoading && (
-          <div className="animate-pulse flex space-x-2">
-            <div className="h-2 w-2 bg-gray-500 rounded-full"></div>
-            <div className="h-2 w-2 bg-gray-500 rounded-full"></div>
-            <div className="h-2 w-2 bg-gray-500 rounded-full"></div>
-          </div>
-        )}
-      </div>
-      <div className="pl-10">
-        <Markdown content={content} />
-      </div>
+      )}
+      <Markdown html>{content}</Markdown>
     </div>
   );
-};
+});
