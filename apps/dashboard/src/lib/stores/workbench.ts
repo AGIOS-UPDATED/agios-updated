@@ -1,12 +1,12 @@
 'use client';
 
 import { atom, map, type MapStore, type ReadableAtom, type WritableAtom } from 'nanostores';
-import type { EditorDocument, ScrollPosition } from '@/components/editor/codemirror/CodeMirrorEditor';
+import type { EditorDocument, ScrollPosition } from '@/components/chat-assistant/codemirror/CodeMirrorEditor';
 import { ActionRunner } from '@/lib/runtime/action-runner';
 import type { ActionCallbackData, ArtifactCallbackData } from '@/lib/runtime/message-parser';
 import { webcontainer } from '@/lib/webcontainer';
 import type { ITerminal } from '@/types/terminal';
-import { unreachable } from '@/utils/unreachable';
+import { unreachable } from '@/utils/chat-assistant/unreachable';
 import { EditorStore } from './editor';
 import { FilesStore, type FileMap } from './files';
 import { PreviewsStore } from './previews';
@@ -15,10 +15,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
 import pathBrowserify from 'path-browserify';
-import { extractRelativePath } from '@/utils/diff';
+import { extractRelativePath } from '@/utils/chat-assistant/diff';
 import { description } from '@/lib/persistence';
 import Cookies from 'js-cookie';
-import { createSampler } from '@/utils/sampler';
+import { createSampler } from '@/utils/chat-assistant/sampler';
 import type { ActionAlert } from '@/types/actions';
 
 export interface ArtifactState {

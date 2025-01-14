@@ -1,13 +1,13 @@
 import type { Message } from 'ai';
 import React, { Fragment } from 'react';
-import { classNames } from '~/utils/classNames';
+import { classNames } from '@/utils/chat-assistant/classNames';
 import { AssistantMessage } from './AssistantMessage';
 import { UserMessage } from './UserMessage';
 import { useLocation } from '@remix-run/react';
-import { db, chatId } from '~/lib/persistence/useChatHistory';
-import { forkChat } from '~/lib/persistence/db';
+import { db, chatId } from '@/lib/persistence/useChatHistory';
+import { forkChat } from '@/lib/persistence/db';
 import { toast } from 'react-toastify';
-import WithTooltip from '~/components/ui/Tooltip';
+import WithTooltip from '@/components/chat-assistant/ui/Tooltip';
 
 interface MessagesProps {
   id?: string;

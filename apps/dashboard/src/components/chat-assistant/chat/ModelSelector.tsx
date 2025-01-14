@@ -1,6 +1,6 @@
-import type { ProviderInfo } from '~/types/model';
+import type { ProviderInfo } from '@/types/model';
 import { useEffect } from 'react';
-import type { ModelInfo } from '~/lib/modules/llm/types';
+import type { ModelInfo } from '@/lib/modules/llm/types';
 
 interface ModelSelectorProps {
   model?: string;

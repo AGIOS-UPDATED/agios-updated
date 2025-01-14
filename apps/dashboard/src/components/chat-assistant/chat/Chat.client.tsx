@@ -8,21 +8,21 @@ import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
-import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
-import { description, useChatHistory } from '~/lib/persistence';
-import { chatStore } from '~/lib/stores/chat';
-import { workbenchStore } from '~/lib/stores/workbench';
-import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
-import { cubicEasingFn } from '~/utils/easings';
-import { createScopedLogger, renderLogger } from '~/utils/logger';
+import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '@/lib/hooks';
+import { description, useChatHistory } from '@/lib/persistence';
+import { chatStore } from '@/lib/stores/chat';
+import { workbenchStore } from '@/lib/stores/workbench';
+import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '@/utils/chat-assistant/constants';
+import { cubicEasingFn } from '@/utils/chat-assistant/easings';
+import { createScopedLogger, renderLogger } from '@/utils/chat-assistant/logger';
 import { BaseChat } from './BaseChat';
 import Cookies from 'js-cookie';
-import { debounce } from '~/utils/debounce';
-import { useSettings } from '~/lib/hooks/useSettings';
-import type { ProviderInfo } from '~/types/model';
+import { debounce } from '@/utils/chat-assistant/debounce';
+import { useSettings } from '@/lib/hooks/useSettings';
+import type { ProviderInfo } from '@/types/model';
 import { useSearchParams } from '@remix-run/react';
-import { createSampler } from '~/utils/sampler';
-import { getTemplates, selectStarterTemplate } from '~/utils/selectStarterTemplate';
+import { createSampler } from '@/utils/chat-assistant/sampler';
+import { getTemplates, selectStarterTemplate } from '@/utils/chat-assistant/selectStarterTemplate';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',

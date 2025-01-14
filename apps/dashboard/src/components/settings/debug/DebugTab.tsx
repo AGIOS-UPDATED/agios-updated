@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSettings } from '~/lib/hooks/useSettings';
+import { useSettings } from '@/lib/hooks/useSettings';
 import { toast } from 'react-toastify';
-import { providerBaseUrlEnvKeys } from '~/utils/chat-assistant/constants';
+import { providerBaseUrlEnvKeys } from '@/utils/chat-assistant/constants';
 
 interface ProviderStatus {
   name: string;

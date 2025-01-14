@@ -5,7 +5,7 @@ import { streamText } from '@/lib/llm/stream-text';
 import { SwitchableStream } from '@/lib/llm/switchable-stream';
 import { type Messages, type StreamingOptions } from '@/types/chat';
 import { type IProviderSetting } from '@/types/model';
-import { createScopedLogger } from '@/utils/logger';
+import { createScopedLogger } from '@/utils/chat-assistant/logger';
 
 const logger = createScopedLogger('api.chat');
 

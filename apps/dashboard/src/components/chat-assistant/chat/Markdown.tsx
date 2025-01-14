@@ -1,8 +1,8 @@
 import { memo, useMemo } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import type { BundledLanguage } from 'shiki';
-import { createScopedLogger } from '~/utils/logger';
-import { rehypePlugins, remarkPlugins, allowedHTMLElements } from '~/utils/markdown';
+import { createScopedLogger } from '@/utils/chat-assistant/logger';
+import { rehypePlugins, remarkPlugins, allowedHTMLElements } from '@/utils/chat-assistant/markdown';
 import { Artifact } from './Artifact';
 import { CodeBlock } from './CodeBlock';
 
