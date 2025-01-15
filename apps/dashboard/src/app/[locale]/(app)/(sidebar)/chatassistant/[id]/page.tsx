@@ -8,7 +8,7 @@ type ChatIdPageProps = {
 export default function ChatIdPage({ params }: ChatIdPageProps) {
   return (
     <div>
-      <IndexRoute />
+      {/* <IndexRoute /> */}
     </div>
   );
 }
