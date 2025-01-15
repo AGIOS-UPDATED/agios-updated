@@ -9,7 +9,7 @@ import { Menu } from '@/components/chat-assistant/sidebar/Menu';
 import { IconButton } from '@/components/chat-assistant/ui/IconButton';
 import { classNames } from '@/utils/chat-assistant/classNames';
 import { MODEL_LIST, PROVIDER_LIST, initializeModelList } from '@/utils/chat-assistant/constants';
-import { Messages } from './Messages.client';
+import { Messages } from './MessagesClient';
 import { SendButton } from './SendButton.client';
 import { APIKeyManager, getApiKeysFromCookies } from './APIKeyManager';
 import Cookies from 'js-cookie';
